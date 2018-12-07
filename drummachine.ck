@@ -50,7 +50,7 @@ Tempo tempo;
 Meter meter;
 
 // Ease of use variables
-me.dir()+"/samples/SMDrums Multi-Mic (Samples)/" => string drumSamplesDirectory;
+me.dir()+"samples/SMDrums Multi-Mic (Samples)/" => string drumSamplesDirectory;
 drumSamplesDirectory + "Kik 8-RR/Inside/RR1/" => string insideKickDirectory;
 drumSamplesDirectory + "Snare67 NoRing (Samples) 1/1_Top/RR1/" => string topSnareDirectory;
 
@@ -70,6 +70,7 @@ kickSamplesDocument.open(insideKickDirectory + "!fileList.txt", FileIO.READ);
 GetTheNumberOfSamplesInTheDocument(kickSamplesDocument) => int samplesCount;
 
 string kickSamples[samplesCount];
+
 
 kickSamplesDocument.open(insideKickDirectory + "!fileList.txt", FileIO.READ);
 for(0 => int i; i != samplesCount; i++){
