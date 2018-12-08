@@ -1,4 +1,5 @@
-// CLASS DEFINITIONS
+// ------------------------------//
+// CUSTOM CLASS DEFINITIONS
 // Tempo
 class Tempo{
     dur whole,
@@ -31,7 +32,19 @@ class Meter{
     dur note;
 }
 
-fun int GetTheNumberOfSamplesInTheDocument(FileIO document){
+//Drum
+class Drum{
+    string directory;
+    string sampleArray[];
+    SndBuf buffer => Gain gain => dac;
+}
+// ------------------------------//
+
+
+// ------------------------------//
+// CUSTOM FUNCTIONS
+fun int GetTheNumberOfSamplesInTheDocument(FileIO document, string directory){
+    document.open(directory + "!fileList.txt", FileIO.READ);
     int samplesCount;
     for(0 => int i; !document.eof(); i++){
         document => string dump;
@@ -40,8 +53,35 @@ fun int GetTheNumberOfSamplesInTheDocument(FileIO document){
     return samplesCount;
 }
 
-// BEGIN DRUM MACHINE
+fun string[] LoadFilenamesIntoSampleArray(FileIO document, string directory, string samples[])
+{
+    document.open(directory + "!fileList.txt", FileIO.READ);
+    for(0 => int i; i != samples.cap(); i++){
+        document => samples[i];
+    }
+    return samples;
+}
 
+fun string[] LoadSamples(string directory)
+{
+    FileIO totalSamplesDocument;
+    GetTheNumberOfSamplesInTheDocument(totalSamplesDocument, directory) => int samplesCount;
+    string samples[samplesCount];
+    LoadFilenamesIntoSampleArray(totalSamplesDocument, directory, samples) @=> samples;
+    return samples;
+}
+
+fun void LoadRandomSample(Drum drum)
+{
+    Math.random2(12, drum.sampleArray.cap()-1) => int sampleNum;
+    drum.directory + drum.sampleArray[sampleNum] => drum.buffer.read;
+    drum.buffer.samples() => drum.buffer.pos;
+}
+// ------------------------------//
+
+
+// ------------------------------//
+// BEGIN DRUM MACHINE
 8000 => Math.RANDOM_MAX;
 Math.srandom(Math.random());
 
@@ -49,13 +89,27 @@ Math.srandom(Math.random());
 Tempo tempo;
 Meter meter;
 
+// Create Drums
+Drum insideKick;
+Drum topSnare;
+Drum crashCymbal;
+
 // Ease of use variables
 me.dir()+"samples/SMDrums Multi-Mic (Samples)/" => string drumSamplesDirectory;
-drumSamplesDirectory + "Kik 8-RR/Inside/RR1/" => string insideKickDirectory;
-drumSamplesDirectory + "Snare67 NoRing (Samples) 1/1_Top/RR1/" => string topSnareDirectory;
-
 me.dir() + "samples/SMD Cymbals Stereo (Samples)/Crash (Samples)/" => string cymbalSamplesDirectory;
-cymbalSamplesDirectory + "Crash 13 (Samples)/RR1/" => string crashCymbalDirectory;
+
+// Load Drums
+drumSamplesDirectory + "Kik 8-RR/Inside/RR1/" =>  insideKick.directory;
+LoadSamples(insideKick.directory) @=> insideKick.sampleArray;
+LoadRandomSample(insideKick);
+
+drumSamplesDirectory + "Snare67 NoRing (Samples) 1/1_Top/RR1/" => topSnare.directory;
+LoadSamples(topSnare.directory) @=> topSnare.sampleArray;
+LoadRandomSample(topSnare);
+
+cymbalSamplesDirectory + "Crash 13 (Samples)/RR1/" => crashCymbal.directory;
+LoadSamples(crashCymbal.directory) @=> crashCymbal.sampleArray;
+LoadRandomSample(crashCymbal);
 
 // Set the song BPM
 tempo.setBPM(100);
@@ -64,51 +118,21 @@ tempo.setBPM(100);
 tempo.quarter => meter.note;
 4 => meter.length;
 
-// Setup the samples
-FileIO kickSamplesDocument;
-kickSamplesDocument.open(insideKickDirectory + "!fileList.txt", FileIO.READ);
-GetTheNumberOfSamplesInTheDocument(kickSamplesDocument) => int samplesCount;
-
-string kickSamples[samplesCount];
-
-
-kickSamplesDocument.open(insideKickDirectory + "!fileList.txt", FileIO.READ);
-for(0 => int i; i != samplesCount; i++){
-    kickSamplesDocument => kickSamples[i];
-}
-
-SndBuf kick => dac;
-fun void loadKick(int sampleNum){
-    insideKickDirectory + kickSamples[sampleNum] => kick.read;
-    kick.samples() => kick.pos;
-    <<< "Loaded kick sample: " + sampleNum >>>;
-}
-loadKick(Math.random2(24, kickSamples.cap()-1));
-
-SndBuf snare => dac;
-topSnareDirectory + "32_Snr67_NR_Top_RR1.wav" => snare.read;
-snare.samples() => snare.pos;
-
-SndBuf crash => dac;
-crashCymbalDirectory + "22_Crash_13in_R_edge_RR1.wav" => crash.read;
-crash.samples() => crash.pos;
 meter.length => int crashCount;
 
 
 while(meter.length != 0){
-    Math.random2(24, kickSamples.cap()-1) => int randomKick;
-    <<< "Kick Sample: " + randomKick >>>;
     if(meter.length % 2 == 0){
-        loadKick(randomKick);
-        0 => kick.pos;
+        LoadRandomSample(insideKick);
+        0 => insideKick.buffer.pos;
     }
     else{
-        0 => snare.pos;
+        0 => topSnare.buffer.pos;
     }
 
     if(meter.length % crashCount == 0){
     <<< "Meter Length: " + meter.length >>>;
-        0 => crash.pos;
+        0 => crashCymbal.buffer.pos;
     }
     
     meter.note => now;
