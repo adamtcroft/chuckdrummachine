@@ -71,11 +71,20 @@ fun string[] LoadSamples(string directory)
     return samples;
 }
 
-fun void LoadRandomSample(Drum drum)
+fun void LoadRandomSample(Drum drum, int minimumSample)
 {
-    Math.random2(12, drum.sampleArray.cap()-1) => int sampleNum;
+    Math.random2(minimumSample, drum.sampleArray.cap()-1) => int sampleNum;
     drum.directory + drum.sampleArray[sampleNum] => drum.buffer.read;
     drum.buffer.samples() => drum.buffer.pos;
+}
+
+fun Drum CreateDrum(string directory, int minimumSample)
+{
+    Drum drum;
+    directory => drum.directory;
+    LoadSamples(drum.directory) @=> drum.sampleArray;
+    LoadRandomSample(drum, minimumSample);
+    return drum;
 }
 // ------------------------------//
 
@@ -89,27 +98,15 @@ Math.srandom(Math.random());
 Tempo tempo;
 Meter meter;
 
-// Create Drums
-Drum insideKick;
-Drum topSnare;
-Drum crashCymbal;
-
 // Ease of use variables
 me.dir()+"samples/SMDrums Multi-Mic (Samples)/" => string drumSamplesDirectory;
 me.dir() + "samples/SMD Cymbals Stereo (Samples)/Crash (Samples)/" => string cymbalSamplesDirectory;
 
-// Load Drums
-drumSamplesDirectory + "Kik 8-RR/Inside/RR1/" =>  insideKick.directory;
-LoadSamples(insideKick.directory) @=> insideKick.sampleArray;
-LoadRandomSample(insideKick);
-
-drumSamplesDirectory + "Snare67 NoRing (Samples) 1/1_Top/RR1/" => topSnare.directory;
-LoadSamples(topSnare.directory) @=> topSnare.sampleArray;
-LoadRandomSample(topSnare);
-
-cymbalSamplesDirectory + "Crash 13 (Samples)/RR1/" => crashCymbal.directory;
-LoadSamples(crashCymbal.directory) @=> crashCymbal.sampleArray;
-LoadRandomSample(crashCymbal);
+// Create Drums
+12 => int minimumSample;
+CreateDrum(drumSamplesDirectory + "Kik 8-RR/Inside/RR1/", minimumSample*2) @=> Drum insideKick;
+CreateDrum(drumSamplesDirectory + "Snare67 NoRing (Samples) 1/1_Top/RR1/", minimumSample*2) @=> Drum topSnare;
+CreateDrum(cymbalSamplesDirectory + "Crash 13 (Samples)/RR1/", minimumSample) @=> Drum crashCymbal;
 
 // Set the song BPM
 tempo.setBPM(100);
@@ -120,10 +117,9 @@ tempo.quarter => meter.note;
 
 meter.length => int crashCount;
 
-
 while(meter.length != 0){
     if(meter.length % 2 == 0){
-        LoadRandomSample(insideKick);
+        LoadRandomSample(insideKick, minimumSample*2);
         0 => insideKick.buffer.pos;
     }
     else{
