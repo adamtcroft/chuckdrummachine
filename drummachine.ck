@@ -71,19 +71,24 @@ CreateDrum(cymbalSamplesDirectory + "Hi-Hat (Samples)/01 Hat Tight 1/RR1/", 12) 
 tempo.setBPM(100);
 
 // Define the meter
-tempo.quarter => groove.baseCountTime;
+tempo.eighth => groove.baseCountTime;
 4.0 => groove.meterLength => groove.meterCount;
 
+0.5 => topSnare.gain.gain;
+
 while(groove.meterCount >= 0){
-    <<< "Beat: " + groove.meterCount >>>;
+    if(groove.meterCount % 1 == 0){
+        <<< "Beat: " + groove.meterCount >>>;
+    }
     groove.PlayKick(insideKick);
-    //groove.PlaySnare(topSnare);
+    groove.PlaySnare(topSnare);
     groove.PlayHat(hiHat);
     
     groove.baseCountTime => now;
-    groove.meterCount - 1.0 => groove.meterCount;
+    groove.meterCount - .5 => groove.meterCount;
 
     if(groove.meterCount == 0){
+        //4 => groove.meterLength => groove.meterCount;
         Math.random2(1, 9) => groove.meterLength => groove.meterCount;
         <<< "Meter Length: " + groove.meterLength >>>;
     }

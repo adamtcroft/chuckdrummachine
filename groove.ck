@@ -8,7 +8,6 @@ public class Groove{
 
     fun void PlayKick(Drum drum)
     {
-        <<< "meterLength / 2: " + meterLength/2 >>>;
         if(meterCount % (meterLength/2) == 0){
             0 => drum.buffer.pos;
         }
@@ -16,14 +15,15 @@ public class Groove{
 
     fun void PlaySnare(Drum drum)
     {
-        if(meterCount % (meterCount/2) == 0){
-            <<< "Snare!" >>>;
+        if(meterCount == (meterLength/2)){
             0 => drum.buffer.pos;
         }
     }
     
     fun void PlayHat(Drum drum)
     {
-        0 => drum.buffer.pos;
+        if(meterCount % 1 == 0){
+            0 => drum.buffer.pos;
+        }
     }
 }
