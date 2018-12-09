@@ -13,6 +13,13 @@ public class Groove{
         }
     }
 
+    fun void PlayCrash(Drum drum)
+    {
+        if(meterCount % meterLength == 0){
+            0 => drum.buffer.pos;
+        }
+    }
+
     fun void PlaySnare(Drum drum)
     {
         if(meterCount == (meterLength/2)){
@@ -23,6 +30,12 @@ public class Groove{
     fun void PlayHat(Drum drum)
     {
         if(meterCount % 1 == 0){
+            0 => drum.buffer.pos;
+        }
+    }
+
+    fun void PlayTom1(Drum drum){
+        if(meterCount % 1.5 == 0){
             0 => drum.buffer.pos;
         }
     }
