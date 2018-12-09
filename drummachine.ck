@@ -1,47 +1,4 @@
 // ------------------------------//
-// CUSTOM CLASS DEFINITIONS
-// Tempo
-class Tempo{
-    dur whole,
-    half,
-    quarter,
-    eighth,
-    sixteenth,
-    thirtysecond,
-    sixtyfourth;
-    
-    float bpm;
-    
-    fun void setBPM(float tempo)
-    {
-        tempo => bpm;
-        60.0/(tempo) => float secondsPerBeat;
-        secondsPerBeat :: second => quarter;
-        quarter*4 => whole;
-        whole/2 => half;
-        quarter/2 => eighth;
-        eighth/2 => sixteenth;
-        sixteenth/2 => thirtysecond;
-        thirtysecond/2 => sixtyfourth;
-    }
-}
-
-// Meter
-class Meter{
-    int length;
-    dur note;
-}
-
-//Drum
-class Drum{
-    string directory;
-    string sampleArray[];
-    SndBuf buffer => Gain gain => dac;
-}
-// ------------------------------//
-
-
-// ------------------------------//
 // CUSTOM FUNCTIONS
 fun int GetTheNumberOfSamplesInTheDocument(FileIO document, string directory){
     document.open(directory + "!fileList.txt", FileIO.READ);
@@ -97,45 +54,37 @@ Math.srandom(Math.random());
 // Create tempo and meter objects
 Tempo tempo;
 Meter meter;
+Groove groove;
 
 // Ease of use variables
 me.dir()+"samples/SMDrums Multi-Mic (Samples)/" => string drumSamplesDirectory;
-me.dir() + "samples/SMD Cymbals Stereo (Samples)/Crash (Samples)/" => string cymbalSamplesDirectory;
+me.dir() + "samples/SMD Cymbals Stereo (Samples)/" => string cymbalSamplesDirectory;
 
 // Create Drums
 12 => int minimumSample;
 CreateDrum(drumSamplesDirectory + "Kik 8-RR/Inside/RR1/", minimumSample*2) @=> Drum insideKick;
 CreateDrum(drumSamplesDirectory + "Snare67 NoRing (Samples) 1/1_Top/RR1/", minimumSample*2) @=> Drum topSnare;
-CreateDrum(cymbalSamplesDirectory + "Crash 13 (Samples)/RR1/", minimumSample) @=> Drum crashCymbal;
+CreateDrum(cymbalSamplesDirectory + "Crash (Samples)/Crash 13 (Samples)/RR1/", minimumSample) @=> Drum crashCymbal;
+CreateDrum(cymbalSamplesDirectory + "Hi-Hat (Samples)/01 Hat Tight 1/RR1/", 12) @=> Drum hiHat; 
 
 // Set the song BPM
 tempo.setBPM(100);
 
 // Define the meter
-tempo.quarter => meter.note;
-4 => meter.length;
+tempo.quarter => groove.baseCountTime;
+4.0 => groove.meterLength => groove.meterCount;
 
-meter.length => int crashCount;
-
-while(meter.length != 0){
-    if(meter.length % 2 == 0){
-        LoadRandomSample(insideKick, minimumSample*2);
-        0 => insideKick.buffer.pos;
-    }
-    else{
-        0 => topSnare.buffer.pos;
-    }
-
-    if(meter.length % crashCount == 0){
-    <<< "Meter Length: " + meter.length >>>;
-        0 => crashCymbal.buffer.pos;
-    }
+while(groove.meterCount >= 0){
+    <<< "Beat: " + groove.meterCount >>>;
+    groove.PlayKick(insideKick);
+    //groove.PlaySnare(topSnare);
+    groove.PlayHat(hiHat);
     
-    meter.note => now;
-    meter.length--;
+    groove.baseCountTime => now;
+    groove.meterCount - 1.0 => groove.meterCount;
 
-    if(meter.length == 0){
-        Math.random2(1, 7) => meter.length;
-        meter.length => crashCount;
+    if(groove.meterCount == 0){
+        Math.random2(1, 9) => groove.meterLength => groove.meterCount;
+        <<< "Meter Length: " + groove.meterLength >>>;
     }
 }
