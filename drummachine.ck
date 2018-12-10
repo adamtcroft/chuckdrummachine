@@ -65,8 +65,11 @@ me.dir() + "samples/SMD Cymbals Stereo (Samples)/" => string cymbalSamplesDirect
 CreateDrum(drumSamplesDirectory + "Kik 8-RR/Inside/RR1/", minimumSample*2) @=> Drum insideKick;
 CreateDrum(drumSamplesDirectory + "Snare67 NoRing (Samples) 1/1_Top/RR1/", minimumSample*2) @=> Drum topSnare;
 CreateDrum(drumSamplesDirectory + "Toms (Samples)/Tom_1 (Samples)/RR1/Top/", minimumSample*2) @=> Drum tom1;
+CreateDrum(drumSamplesDirectory + "Toms (Samples)/Tom_2 (Samples)/RR1/Top/", minimumSample*2) @=> Drum tom2;
+CreateDrum(drumSamplesDirectory + "Toms (Samples)/Tom_3 (Samples)/RR1/Top/", minimumSample*2) @=> Drum tom3;
 CreateDrum(cymbalSamplesDirectory + "Crash (Samples)/Crash 13 (Samples)/RR1/", minimumSample) @=> Drum crashCymbal;
 CreateDrum(cymbalSamplesDirectory + "Hi-Hat (Samples)/01 Hat Tight 1/RR1/", 12) @=> Drum hiHat;
+CreateDrum(cymbalSamplesDirectory + "Ride (Samples)/Ride 20 (Samples)/RR1/", 12) @=> Drum ride;
 
 // Set the song BPM
 tempo.setBPM(100);
