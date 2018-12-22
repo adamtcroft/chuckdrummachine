@@ -1,46 +1,11 @@
 // ------------------------------//
 // CUSTOM FUNCTIONS
-fun int GetTheNumberOfSamplesInTheDocument(FileIO document, string directory){
-    document.open(directory + "!fileList.txt", FileIO.READ);
-    int samplesCount;
-    for(0 => int i; !document.eof(); i++){
-        document => string dump;
-        i => samplesCount;
-    }
-    return samplesCount;
-}
-
-fun string[] LoadFilenamesIntoSampleArray(FileIO document, string directory, string samples[])
-{
-    document.open(directory + "!fileList.txt", FileIO.READ);
-    for(0 => int i; i != samples.cap(); i++){
-        document => samples[i];
-    }
-    return samples;
-}
-
-fun string[] LoadSamples(string directory)
-{
-    FileIO totalSamplesDocument;
-    GetTheNumberOfSamplesInTheDocument(totalSamplesDocument, directory) => int samplesCount;
-    string samples[samplesCount];
-    LoadFilenamesIntoSampleArray(totalSamplesDocument, directory, samples) @=> samples;
-    return samples;
-}
-
-fun void LoadRandomSample(Drum drum, int minimumSample)
-{
-    Math.random2(minimumSample, drum.sampleArray.cap()-1) => int sampleNum;
-    drum.directory + drum.sampleArray[sampleNum] => drum.buffer.read;
-    drum.buffer.samples() => drum.buffer.pos;
-}
-
 fun Drum CreateDrum(string directory, int minimumSample)
 {
     Drum drum;
     directory => drum.directory;
-    LoadSamples(drum.directory) @=> drum.sampleArray;
-    LoadRandomSample(drum, minimumSample);
+    drum.LoadSamples();
+    drum.LoadRandomSample(minimumSample, 0);
     return drum;
 }
 // ------------------------------//
@@ -57,7 +22,7 @@ Meter meter;
 Groove groove;
 
 // Ease of use variables
-me.dir()+"samples/SMDrums Multi-Mic (Samples)/" => string drumSamplesDirectory;
+me.dir() + "samples/SMDrums Multi-Mic (Samples)/" => string drumSamplesDirectory;
 me.dir() + "samples/SMD Cymbals Stereo (Samples)/" => string cymbalSamplesDirectory;
 
 // Create Drums
@@ -75,28 +40,25 @@ CreateDrum(cymbalSamplesDirectory + "Ride (Samples)/Ride 20 (Samples)/RR1/", 12)
 tempo.setBPM(100);
 
 // Define the meter
-tempo.eighth => groove.baseCountTime;
-4.0 => groove.meterLength => groove.meterCount;
+tempo.quarter => groove.baseCountTime;
+4.0 => groove.meterLength;
+0.0 => groove.meterCount;
+groove.LoadPatterns();
+groove.LoadRandomPattern(insideKick);
 
 0.5 => topSnare.gain.gain;
 0.5 => tom1.gain.gain;
 
-while(groove.meterCount >= 0){
-    if(groove.meterCount % 1 == 0){
-        <<< "Beat: " + groove.meterCount >>>;
-    }
-    groove.PlayKick(insideKick);
-    groove.PlaySnare(topSnare);
-    groove.PlayHat(hiHat);
-    groove.PlayCrash(crashCymbal);
-    groove.PlayTom1(tom1);
-    
+while(true){
+    groove.Play(insideKick);
     groove.baseCountTime => now;
-    groove.meterCount - .5 => groove.meterCount;
+    
+    groove.meterCount + 1 => groove.meterCount;
 
-    if(groove.meterCount == 0){
-        //4 => groove.meterLength => groove.meterCount;
-        Math.random2(1, 9) => groove.meterLength => groove.meterCount;
-        <<< "Meter Length: " + groove.meterLength >>>;
+    if(groove.meterCount == groove.meterLength)
+    {
+        4 => groove.meterLength;
+        0 => groove.meterCount;
+        groove.LoadRandomPattern(insideKick);
     }
 }

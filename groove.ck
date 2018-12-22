@@ -4,39 +4,77 @@ public class Groove{
     dur baseCountTime;
     float meterCount;
     float meterLength;
-    4 => int kick;
+    int listOfPatterns[][];
+    int pattern[];
 
-    fun void PlayKick(Drum drum)
+    fun int NumberOfPatterns()
     {
-        if(meterCount % (meterLength/2) == 0){
-            0 => drum.buffer.pos;
+        0 => int count;
+        FileIO patternDocument;
+        patternDocument.open(me.dir() + "grooves/4/4.txt", FileIO.READ);
+        while(!patternDocument.eof())
+        {
+            patternDocument.readLine() => string dumpLine;
+            count++;
+        }
+
+        return count;
+    }
+
+    fun void LoadPatterns()
+    {
+        NumberOfPatterns() => int patternCount;
+        int arraySizer[patternCount][Std.ftoi(meterLength)] @=> listOfPatterns;
+
+        FileIO patternDocument;
+        patternDocument.open(me.dir() + "grooves/4/4.txt", FileIO.READ);
+        for(0 => int i; i < patternCount; i++)
+        {
+            int patternDefinition[Std.ftoi(meterLength)];
+            for(0 => int i; i < meterLength; i++)
+            {
+                patternDocument => patternDefinition[i];
+            }
+            patternDefinition @=> listOfPatterns[i];
         }
     }
 
-    fun void PlayCrash(Drum drum)
+    fun void LoadRandomPattern(Drum drum)
     {
-        if(meterCount % meterLength == 0){
-            0 => drum.buffer.pos;
-        }
+        Math.random2(0, listOfPatterns.cap()-1) => int chosenPattern;
+        listOfPatterns[chosenPattern] @=> drum.pattern;
     }
 
-    fun void PlaySnare(Drum drum)
+    fun void LoadSpecificPattern(Drum drum, int patternNumber)
     {
-        if(meterCount == (meterLength/2)){
-            0 => drum.buffer.pos;
+        if(patternNumber > listOfPatterns.cap()-1)
+        {
+            LoadRandomPattern(drum);
+        }
+        else
+        {
+            listOfPatterns[patternNumber] @=> drum.pattern;
         }
     }
     
-    fun void PlayHat(Drum drum)
+    fun void Play(Drum drum)
     {
-        if(meterCount % 1 == 0){
+        if(drum.pattern[Std.ftoi(meterCount)] == 1)
+        {
+            drum.LoadRandomSample(20, 0);
             0 => drum.buffer.pos;
+            <<< "PLAY " + meterCount >>>;
         }
-    }
 
-    fun void PlayTom1(Drum drum){
-        if(meterCount % 1.5 == 0){
-            0 => drum.buffer.pos;
+        if(drum.pattern[Std.ftoi(meterCount)] == 0)
+        {
+            Math.random2(0,8) => int play;
+            if(play > 6)
+            {
+                drum.LoadRandomSample(0, 10);
+                0 => drum.buffer.pos;
+                <<< "PLAY " + meterCount >>>;
+            }
         }
     }
 }
